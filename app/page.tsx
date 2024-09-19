@@ -1,4 +1,3 @@
-import GlitchText from '@/components/glitch-text';
 import Image from 'next/image';
 
 export default function Home() {
