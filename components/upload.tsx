@@ -13,7 +13,7 @@ import {
 	Loader2,
 	X,
 } from 'lucide-react';
-
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 interface UploadedFile {
 	url: string;
 	pathname: string;
