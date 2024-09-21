@@ -1,117 +1,168 @@
 'use client';
 
 import { useChat } from 'ai/react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import remarkGfm from 'remark-gfm';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faUserMd,
+	faUser,
+	faPaperPlane,
+} from '@fortawesome/free-solid-svg-icons';
+import remarkGfm from 'remark-gfm';
 import { MemoizedReactMarkdown } from './markdown';
 
-export default function ChatCompo() {
-	const { messages, input, handleInputChange, handleSubmit, data } = useChat();
+export default function ChatComponent() {
+	const { messages, input, handleInputChange, handleSubmit } = useChat();
+	const chatContainerRef = useRef<HTMLDivElement>(null);
+	const lastMessageRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (lastMessageRef.current) {
+			lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [messages]);
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSubmit((e as unknown) as React.FormEvent<HTMLFormElement>);
+		}
+	};
 
 	return (
-		<div className="flex flex-col h-screen w-[80%] mx-auto p-4">
-			<ScrollArea className="flex-grow mb-4 border rounded-md p-4">
-				{messages.map(m => (
-					<div
-						key={m.id}
-						className={`mb-4 ${
-							m.role === 'user' ? 'text-right' : 'text-left'
-						}`}>
-						<MemoizedReactMarkdown
-							className={'markdown'}
-							remarkPlugins={[remarkGfm]}
-							components={{
-								ul({ children }) {
-									return (
-										<ul className="marker:text-zinc-500 list-disc pl-5 pb-3 mt-2">
-											{children}
-										</ul>
-									);
-								},
-								ol({ children }) {
-									return (
-										<ol className="marker:text-zinc-500 list-decimal pl-5 pb-3 listco">
-											{children}
-										</ol>
-									);
-								},
-								li({ children }) {
-									return <li className=" mb-2">{children}</li>;
-								},
-								p({ children }) {
-									return <p className=" my-2 last:mb-0">{children}</p>;
-								},
-								h1({ children }) {
-									return (
-										<h1 className=" font-bold mt-3 text-3xl">{children}</h1>
-									);
-								},
-								h2({ children }) {
-									return (
-										<h2 className=" font-bold mt-3 text-3xl">{children}</h2>
-									);
-								},
-								h3({ children }) {
-									return (
-										<h3 className=" text-2xl font-semibold">{children}</h3>
-									);
-								},
-								h4({ children }) {
-									return <h4 className=" text-xl font-semibold">{children}</h4>;
-								},
-								table({ children }) {
-									return (
-										<div className="relative w-[22rem] md:w-[46rem] overflow-x-scroll">
-											<table className="w-full text-sm text-left rtl:text-right text-zinc-500 dark:text-zinc-300 ">
+		<Card className="w-full max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
+			<CardHeader className="pb-2">
+				<CardTitle className="text-2xl font-bold text-center">
+					Health Assistant
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="flex-grow flex flex-col space-y-4 overflow-hidden">
+				<ScrollArea className="flex-grow pr-4" ref={chatContainerRef}>
+					{messages.map((m, index) => (
+						<div
+							key={m.id}
+							className={`mb-4 flex ${
+								m.role === 'user' ? 'justify-end' : 'justify-start'
+							} items-start space-x-2 fade-in`}
+							ref={index === messages.length - 1 ? lastMessageRef : null}
+						>
+							<div
+								className={`rounded-full p-2 ${
+									m.role === 'user' ? 'bg-primary' : 'bg-secondary'
+								}`}
+							>
+								<FontAwesomeIcon
+									icon={m.role === 'user' ? faUser : faUserMd}
+									className={`w-4 h-4 ${
+										m.role === 'user'
+											? 'text-primary-foreground'
+											: 'text-secondary-foreground'
+									}`}
+								/>
+							</div>
+							<div
+								className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${
+									m.role === 'user'
+										? 'bg-primary text-primary-foreground'
+										: 'bg-secondary text-secondary-foreground'
+								}`}
+								style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+							>
+								<MemoizedReactMarkdown
+									remarkPlugins={[remarkGfm]}
+									components={{
+										p: ({ children }) => (
+											<p className="mb-2 last:mb-0">{children}</p>
+										),
+										ul: ({ children }) => (
+											<ul className="list-disc pl-4 mb-2">{children}</ul>
+										),
+										ol: ({ children }) => (
+											<ol className="list-decimal pl-4 mb-2">{children}</ol>
+										),
+										li: ({ children }) => <li className="mb-1">{children}</li>,
+										h1: ({ children }) => (
+											<h1 className="text-2xl font-bold mb-2">{children}</h1>
+										),
+										h2: ({ children }) => (
+											<h2 className="text-xl font-semibold mb-2">{children}</h2>
+										),
+										h3: ({ children }) => (
+											<h3 className="text-lg font-medium mb-2">{children}</h3>
+										),
+										h4: ({ children }) => (
+											<h4 className="text-base font-medium mb-2">{children}</h4>
+										),
+										table: ({ children }) => (
+											<div className="overflow-x-auto mb-2">
+												<table className="w-full border-collapse">
+													{children}
+												</table>
+											</div>
+										),
+										thead: ({ children }) => (
+											<thead className="bg-muted">{children}</thead>
+										),
+										tbody: ({ children }) => <tbody>{children}</tbody>,
+										tr: ({ children }) => (
+											<tr className="border-b">{children}</tr>
+										),
+										th: ({ children }) => (
+											<th className="px-4 py-2 text-left font-medium">
 												{children}
-											</table>
-										</div>
-									);
-								},
-								thead({ children }) {
-									return <thead className="bg-zinc-50">{children}</thead>;
-								},
-								tbody({ children }) {
-									return (
-										<tbody className="bg-white divide-y divide-zinc-200">
-											{children}
-										</tbody>
-									);
-								},
-								tr({ children }) {
-									return <tr>{children}</tr>;
-								},
-								th({ children }) {
-									return (
-										<th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-											{children}
-										</th>
-									);
-								},
-								td({ children }) {
-									return (
-										<td className="px-6 py-4 whitespace-nowrap">{children}</td>
-									);
-								},
-							}}>
-							{m.content}
-						</MemoizedReactMarkdown>
-					</div>
-				))}
-			</ScrollArea>
-			<form
-				onSubmit={handleSubmit}
-				className="flex space-x-2">
-				<Input
-					value={input}
-					onChange={handleInputChange}
-					placeholder="Type your message..."
-					className="flex-grow"
-				/>
-				<Button type="submit">Send</Button>
-			</form>
-		</div>
+											</th>
+										),
+										td: ({ children }) => (
+											<td className="px-4 py-2">{children}</td>
+										),
+									}}
+								>
+									{m.content}
+								</MemoizedReactMarkdown>
+							</div>
+						</div>
+					))}
+				</ScrollArea>
+				<form
+					onSubmit={handleSubmit}
+					className="flex items-end space-x-2 pt-2 border-t"
+				>
+					<Textarea
+						value={input}
+						onChange={handleInputChange}
+						onKeyDown={handleKeyDown}
+						placeholder="Type your message..."
+						className="flex-grow resize-none"
+						rows={2}
+					/>
+					<Button
+						type="submit"
+						size="icon"
+						className="h-10 w-10 shrink-0"
+						aria-label="Send message"
+					>
+						<FontAwesomeIcon icon={faPaperPlane} className="h-4 w-4" />
+					</Button>
+				</form>
+			</CardContent>
+			<style jsx global>{`
+				.fade-in {
+					animation: fadeIn 0.5s ease-in-out;
+				}
+
+				@keyframes fadeIn {
+					from {
+						opacity: 0;
+					}
+					to {
+						opacity: 1;
+					}
+				}
+			`}</style>
+		</Card>
 	);
 }
