@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { put } from '@vercel/blob';
+// import { put } from '@vercel/blob';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,10 +38,10 @@ export default function MultiFileUpload() {
 
 		try {
 			for (const file of files) {
-				const blob = await put(file.name, file, {
-					access: 'public',
-				});
-				newUploadedFiles.push(blob as UploadedFile);
+				// const blob = await put(file.name, file, {
+				// 	access: 'public',
+				// });
+				// newUploadedFiles.push(blob as UploadedFile);
 			}
 			setUploadedFiles([...uploadedFiles, ...newUploadedFiles]);
 			setFiles([]);
