@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import readItems from '../lib/supabaseFunc';
 
 export default async function Home() {
