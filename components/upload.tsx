@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { put } from '@vercel/blob';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,44 +45,11 @@ export default function MultiFileUpload() {
 		const newUploadedFiles: UploadedFile[] = [];
 
 		try {
-			for (let i = 0; i < files.length; i++) {
-				const file = files[i];
-				try {
-					const { data: existingFiles, error: listError } =
-						await supabase.storage.from('pdf').list('uploads', {
-							limit: 100,
-							search: file.name,
-						});
-
-					if (listError) throw listError;
-
-					const fileExists = existingFiles?.some(
-						existingFile => existingFile.name === file.name
-					);
-
-					if (fileExists) {
-						console.log(`File ${file.name} already exists. Skipping upload.`);
-						continue;
-					}
-
-					const { data, error } = await supabase.storage
-						.from('pdf')
-						.upload(`uploads/${file.name}`, file, { upsert: true });
-
-					if (error) throw error;
-
-					if (data) {
-						newUploadedFiles.push({
-							url: data.path,
-							pathname: data.path,
-							ContentType: file.type,
-						});
-					}
-				} catch (err) {
-					console.error(`Error uploading ${file.name}:`, err);
-				}
-
-				setProgress(((i + 1) / files.length) * 100);
+			for (const file of files) {
+				const blob = await put(file.name, file, {
+					access: 'public',
+				});
+				newUploadedFiles.push(blob as UploadedFile);
 			}
 
 			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
