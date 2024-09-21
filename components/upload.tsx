@@ -1,22 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-// import { put } from '@vercel/blob';
+import { put } from '@vercel/blob';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import supabase from '@/lib/supabase';
 import {
 	AlertCircle,
 	FileText,
 	Image as ImageIcon,
 	Loader2,
+	X,
 } from 'lucide-react';
 
 interface UploadedFile {
 	url: string;
 	pathname: string;
-	contentType: string;
+	ContentType?: string;
 }
 
 export default function MultiFileUpload() {
@@ -24,32 +26,40 @@ export default function MultiFileUpload() {
 	const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 	const [isUploading, setIsUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [progress, setProgress] = useState(0);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
-			setFiles(Array.from(e.target.files));
+			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
 		}
+	};
+
+	const removeFile = (index: number) => {
+		setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
 	};
 
 	const uploadFiles = async () => {
 		setIsUploading(true);
 		setError(null);
+		setProgress(0);
 		const newUploadedFiles: UploadedFile[] = [];
 
 		try {
 			for (const file of files) {
-				// const blob = await put(file.name, file, {
-				// 	access: 'public',
-				// });
-				// newUploadedFiles.push(blob as UploadedFile);
+				const blob = await put(file.name, file, {
+					access: 'public',
+				});
+				newUploadedFiles.push(blob as UploadedFile);
 			}
-			setUploadedFiles([...uploadedFiles, ...newUploadedFiles]);
+
+			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
 			setFiles([]);
 		} catch (err) {
 			setError('An error occurred while uploading files. Please try again.');
 			console.error(err);
 		} finally {
 			setIsUploading(false);
+			setProgress(0);
 		}
 	};
 
@@ -67,16 +77,39 @@ export default function MultiFileUpload() {
 								onChange={handleFileChange}
 								accept=".pdf,image/*"
 								multiple
-								className="mt-1"
+								className="mt-1 border-blue-500 text-blue-500 cursor-pointer hover:cursor-pointer"
 							/>
 						</div>
+						{files.length > 0 && (
+							<div className="mt-4">
+								<h2 className="text-lg font-semibold mb-2">Selected Files:</h2>
+								<ul className="list-disc pl-5">
+									{files.map((file, index) => (
+										<li
+											key={index}
+											className="flex items-center justify-between"
+										>
+											<span>{file.name}</span>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => removeFile(index)}
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
 						<Button
 							onClick={uploadFiles}
-							disabled={files.length === 0 || isUploading}>
+							disabled={files.length === 0 || isUploading}
+						>
 							{isUploading ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Uploading...
+									Uploading... {Math.round(progress)}%
 								</>
 							) : (
 								'Upload Files'
@@ -88,32 +121,24 @@ export default function MultiFileUpload() {
 								{error}
 							</div>
 						)}
-					</div>
-					{uploadedFiles.length > 0 && (
-						<div className="mt-6">
-							<h2 className="text-lg font-semibold mb-2">Uploaded Files:</h2>
-							<ul className="space-y-2">
-								{uploadedFiles.map((file, index) => (
-									<li
-										key={index}
-										className="flex items-center">
-										{file.contentType.includes('image') ? (
-											<ImageIcon className="mr-2 h-4 w-4" />
-										) : (
-											<FileText className="mr-2 h-4 w-4" />
-										)}
-										<a
-											href={file.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-blue-500 hover:underline">
+						{uploadedFiles.length > 0 && (
+							<div>
+								<h2 className="text-lg font-semibold mb-2">Uploaded Files:</h2>
+								<ul className="list-disc pl-5">
+									{uploadedFiles.map((file, index) => (
+										<li key={index}>
+											{file.ContentType?.includes('image') ? (
+												<ImageIcon className="inline-block mr-2 h-4 w-4" />
+											) : (
+												<FileText className="inline-block mr-2 h-4 w-4" />
+											)}
 											{file.pathname}
-										</a>
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
+					</div>
 				</CardContent>
 			</Card>
 		</div>

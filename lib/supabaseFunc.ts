@@ -1,12 +1,11 @@
-
-import supabase from "./supabase";
+import supabase from './supabase';
 
 export default async function readItems() {
-    const { data, error } = await supabase.from('test').select('*');
+	const { data, error } = await supabase.from('test').select('*');
 
-    if (error) {
-      console.error('Error reading items:', error);
-    } else {
-      console.log('Items:', data);
-    }
-  }
+	if (error) {
+		console.error('Error reading items:', error);
+	} else {
+		console.log('Items:', data);
+	}
+}
