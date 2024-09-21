@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function ChatCompo() {
-	const { messages, input, handleInputChange, handleSubmit } = useChat();
+	const { messages, input, handleInputChange, handleSubmit, data } = useChat();
 
 	return (
 		<div className="flex flex-col h-screen max-w-md mx-auto p-4">
