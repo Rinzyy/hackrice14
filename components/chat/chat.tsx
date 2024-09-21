@@ -11,7 +11,7 @@ export default function ChatCompo() {
 	const { messages, input, handleInputChange, handleSubmit, data } = useChat();
 
 	return (
-		<div className="flex flex-col h-screen max-w-md mx-auto p-4">
+		<div className="flex flex-col h-screen w-[80%] mx-auto p-4">
 			<ScrollArea className="flex-grow mb-4 border rounded-md p-4">
 				{messages.map(m => (
 					<div

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 	const modifiedMessages = [...messages];
 	const lastMessageIndex = modifiedMessages.length - 1;
 
-	if (data) {
+	if (data.length > 0) {
 		modifiedMessages[lastMessageIndex] = {
 			...modifiedMessages[lastMessageIndex],
 			content: `${modifiedMessages[lastMessageIndex].content}\n\nAdditional context: ${data[0].content}`,
