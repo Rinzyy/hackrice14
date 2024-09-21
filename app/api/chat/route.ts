@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 	data.append({ test: 'value' });
 
 	const result = await streamText({
-		model: openai('gpt-4-turbo'),
+		model: openai('o1-mini'),
 		messages: convertToCoreMessages(messages),
 		onFinish() {
 			data.close();
