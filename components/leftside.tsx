@@ -1,5 +1,6 @@
 import { fetchLatestApp } from '@/lib/supabaseFunc';
 import React from 'react';
+import AppAvailable from './appAvailable';
 
 export default async function Leftside() {
 	const appData = await fetchLatestApp();
@@ -18,30 +19,7 @@ export default async function Leftside() {
 					prescriptions, and other health concerns.
 				</p>
 			</section>
-			<section>
-				{appData ? (
-					<div className=" border-2 border-green-500 rounded-lg p-4 ">
-						<h2 className="text-xl text-green-500 font-bold mb-2 text-primary">
-							Appointment
-						</h2>
-						<p className="text-sm">
-							Your next appointment is scheduled for{' '}
-							<span className="font-semibold">{appData.date}</span>
-						</p>
-					</div>
-				) : (
-					<div>
-						<h2 className="text-xl  font-bold mb-2 text-primary">
-							Appointment
-						</h2>
-						<div className="bg-secondary p-4 rounded-md">
-							<p className="text-sm font-bold">
-								You currently have no scheduled appointments.
-							</p>
-						</div>
-					</div>
-				)}
-			</section>
+			<AppAvailable appData={appData} />
 		</aside>
 	);
 }

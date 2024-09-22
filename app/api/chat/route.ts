@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 		tools: {
 			updateAppointment: updateTool,
 		},
-		maxSteps: 5,
+		maxSteps: 2,
 		messages: convertToCoreMessages(modifiedMessages),
 	});
 
