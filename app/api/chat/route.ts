@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 	// Perform similarity search
 	const { data, error } = await supabase.rpc('match_documentsv3', {
 		query_embedding: embedding,
-		match_threshold: 0.75, // Adjust this value as needed
+		match_threshold: 0.8, // Adjust this value as needed
 		match_count: 5, // Adjust this value as needed
 	});
 
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 	}
 	const result = await streamText({
 		model: openai('gpt-4o-mini'),
-		system: `I want you to act as a helpful doctor. Based on user context information, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
+		system: `I want you to act as a helpful doctor John . Based on user context information, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
 		tools: {
 			updateAppointment: updateTool,
 		},
