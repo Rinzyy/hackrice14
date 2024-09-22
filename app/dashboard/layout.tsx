@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/supaserver';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 export default async function DashboardLayout({
 	children,
@@ -16,8 +17,33 @@ export default async function DashboardLayout({
 	// }
 
 	return (
-		<>
-			<main className="w-full">{children}</main>
-		</>
+		<div className="flex flex-col min-h-screen">
+			<nav className="border-b border-2 p-4">
+				<div className="container mx-auto flex justify-between items-center">
+					<Link
+						href="/dashboard"
+						className="text-xl font-bold">
+						Dashboard
+					</Link>
+					<ul className="flex space-x-4">
+						<li>
+							<Link
+								href="/dashboard/chat"
+								className="hover:underline">
+								Chat
+							</Link>
+						</li>
+						<li>
+							<Link
+								href="/dashboard/upload"
+								className="hover:underline">
+								Upload
+							</Link>
+						</li>
+					</ul>
+				</div>
+			</nav>
+			<main className="flex-grow container mx-auto p-4">{children}</main>
+		</div>
 	);
 }
