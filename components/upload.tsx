@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +15,7 @@ import {
 	Upload,
 } from 'lucide-react';
 import supabase from '../lib/supabase';
-
+import { logoutbutton } from '@/components/ui/logout-button';
 interface UploadedFile {
 	url: string;
 	pathname: string;
@@ -68,13 +67,11 @@ export default function MultiFileUpload() {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
 				try {
-					const {
-						data: existingFiles,
-						error: listError,
-					} = await supabase.storage.from('pdf').list('uploads', {
-						limit: 100,
-						search: file.name,
-					});
+					const { data: existingFiles, error: listError } =
+						await supabase.storage.from('pdf').list('uploads', {
+							limit: 100,
+							search: file.name,
+						});
 
 					if (listError) throw listError;
 
@@ -122,107 +119,109 @@ export default function MultiFileUpload() {
 	};
 
 	return (
-		<Card className="w-full max-w-lg mx-auto mt-8 shadow-lg">
-			<CardHeader className="pb-3">
-				<CardTitle className="text-2xl font-bold text-center">
-					Multi-File Upload
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-6">
-				<div className="space-y-2">
-					<Label htmlFor="file-upload" className="text-sm font-medium">
-						Select files (PDF or Image)
-					</Label>
-					<div className="flex items-center space-x-4">
-						<Input
-							id="file-upload"
-							type="file"
-							onChange={handleFileChange}
-							accept=".pdf,image/*"
-							multiple
-							ref={fileInputRef}
-							className="cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-all duration-300"
-						/>
-					</div>
-				</div>
-				{files.length > 0 && (
+		<>
+			<Card className="w-full max-w-lg mx-auto mt-8 shadow-lg">
+				<CardHeader className="pb-3">
+					<CardTitle className="text-2xl font-bold text-center">
+						Multi-File Upload
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-6">
 					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Selected Files:</h2>
-						<ScrollArea className="h-[120px] w-full rounded-md border">
-							<ul className="p-4 space-y-2">
-								{files.map((file, index) => (
-									<li
-										key={index}
-										className="flex items-center justify-between bg-secondary rounded-lg p-2 transition-all duration-300 hover:bg-secondary/80"
-									>
-										<span className="text-sm truncate max-w-[200px]">
-											{file.name}
-										</span>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => removeFile(index)}
-											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
+						<Label htmlFor="file-upload" className="text-sm font-medium">
+							Select files (PDF or Image)
+						</Label>
+						<div className="flex items-center space-x-4">
+							<Input
+								id="file-upload"
+								type="file"
+								onChange={handleFileChange}
+								accept=".pdf,image/*"
+								multiple
+								ref={fileInputRef}
+								className="cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-all duration-300"
+							/>
+						</div>
+					</div>
+					{files.length > 0 && (
+						<div className="space-y-2">
+							<h2 className="text-lg font-semibold">Selected Files:</h2>
+							<ScrollArea className="h-[120px] w-full rounded-md border">
+								<ul className="p-4 space-y-2">
+									{files.map((file, index) => (
+										<li
+											key={index}
+											className="flex items-center justify-between bg-secondary rounded-lg p-2 transition-all duration-300 hover:bg-secondary/80"
 										>
-											<X className="h-4 w-4" />
-											<span className="sr-only">Remove {file.name}</span>
-										</Button>
-									</li>
-								))}
-							</ul>
-						</ScrollArea>
+											<span className="text-sm truncate max-w-[200px]">
+												{file.name}
+											</span>
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => removeFile(index)}
+												className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
+											>
+												<X className="h-4 w-4" />
+												<span className="sr-only">Remove {file.name}</span>
+											</Button>
+										</li>
+									))}
+								</ul>
+							</ScrollArea>
+						</div>
+					)}
+					<div className="space-y-4">
+						<Button
+							onClick={uploadFiles}
+							disabled={files.length === 0 || isUploading}
+							className="w-full py-2 transition-all duration-300"
+						>
+							{isUploading ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Uploading... {Math.round(progress)}%
+								</>
+							) : (
+								<>
+									<Upload className="mr-2 h-4 w-4" />
+									Upload Files
+								</>
+							)}
+						</Button>
 					</div>
-				)}
-				<div className="space-y-4">
-					<Button
-						onClick={uploadFiles}
-						disabled={files.length === 0 || isUploading}
-						className="w-full py-2 transition-all duration-300"
-					>
-						{isUploading ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Uploading... {Math.round(progress)}%
-							</>
-						) : (
-							<>
-								<Upload className="mr-2 h-4 w-4" />
-								Upload Files
-							</>
-						)}
-					</Button>
-				</div>
-				{error && (
-					<div className="flex items-center p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
-						<AlertCircle className="mr-2 h-4 w-4 flex-shrink-0" />
-						<p>{error}</p>
-					</div>
-				)}
-				{uploadedFiles.length > 0 && (
-					<div className="space-y-2">
-						<h2 className="text-lg font-semibold">Uploaded Files:</h2>
-						<ScrollArea className="h-[120px] w-full rounded-md border">
-							<ul className="p-4 space-y-2">
-								{uploadedFiles.map((file, index) => (
-									<li
-										key={index}
-										className="flex items-center space-x-2 bg-secondary rounded-lg p-2"
-									>
-										{file.ContentType?.includes('image') ? (
-											<ImageIcon className="h-4 w-4 text-primary" />
-										) : (
-											<FileText className="h-4 w-4 text-primary" />
-										)}
-										<span className="text-sm truncate max-w-[200px]">
-											{file.pathname}
-										</span>
-									</li>
-								))}
-							</ul>
-						</ScrollArea>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+					{error && (
+						<div className="flex items-center p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
+							<AlertCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+							<p>{error}</p>
+						</div>
+					)}
+					{uploadedFiles.length > 0 && (
+						<div className="space-y-2">
+							<h2 className="text-lg font-semibold">Uploaded Files:</h2>
+							<ScrollArea className="h-[120px] w-full rounded-md border">
+								<ul className="p-4 space-y-2">
+									{uploadedFiles.map((file, index) => (
+										<li
+											key={index}
+											className="flex items-center space-x-2 bg-secondary rounded-lg p-2"
+										>
+											{file.ContentType?.includes('image') ? (
+												<ImageIcon className="h-4 w-4 text-primary" />
+											) : (
+												<FileText className="h-4 w-4 text-primary" />
+											)}
+											<span className="text-sm truncate max-w-[200px]">
+												{file.pathname}
+											</span>
+										</li>
+									))}
+								</ul>
+							</ScrollArea>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+		</>
 	);
 }

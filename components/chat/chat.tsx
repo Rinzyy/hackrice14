@@ -11,6 +11,7 @@ import {
 	faUserMd,
 	faUser,
 	faPaperPlane,
+	faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import remarkGfm from 'remark-gfm';
 import { MemoizedReactMarkdown } from './markdown';
@@ -18,7 +19,7 @@ import { MemoizedReactMarkdown } from './markdown';
 export default function ChatComponent() {
 	const { messages, input, handleInputChange, handleSubmit } = useChat();
 	const chatContainerRef = useRef<HTMLDivElement>(null);
-	const lastMessageRef = useRef<HTMLDivElement>(null);
+	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		if (lastMessageRef.current) {
@@ -29,16 +30,14 @@ export default function ChatComponent() {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
-			handleSubmit((e as unknown) as React.FormEvent<HTMLFormElement>);
+			handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
 		}
 	};
 
 	return (
 		<Card className="w-full max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-2xl font-bold text-center">
-					Health Assistant
-				</CardTitle>
+			<CardHeader className="pb-2 flex justify-between items-center">
+				<CardTitle className="text-2xl font-bold">Health Assistant</CardTitle>
 			</CardHeader>
 			<CardContent className="flex-grow flex flex-col space-y-4 overflow-hidden">
 				<ScrollArea className="flex-grow pr-4" ref={chatContainerRef}>
@@ -47,8 +46,15 @@ export default function ChatComponent() {
 							key={m.id}
 							className={`mb-4 flex ${
 								m.role === 'user' ? 'justify-end' : 'justify-start'
-							} items-start space-x-2 fade-in`}
-							ref={index === messages.length - 1 ? lastMessageRef : null}
+							} items-start space-x-2 transition-opacity duration-300 ease-in-out opacity-0`}
+							ref={el => {
+								if (index === messages.length - 1) {
+									(lastMessageRef.current as HTMLDivElement | null) = el;
+									if (el) {
+										setTimeout(() => (el.style.opacity = '1'), 50);
+									}
+								}
+							}}
 						>
 							<div
 								className={`rounded-full p-2 ${
@@ -149,20 +155,6 @@ export default function ChatComponent() {
 					</Button>
 				</form>
 			</CardContent>
-			<style jsx global>{`
-				.fade-in {
-					animation: fadeIn 0.5s ease-in-out;
-				}
-
-				@keyframes fadeIn {
-					from {
-						opacity: 0;
-					}
-					to {
-						opacity: 1;
-					}
-				}
-			`}</style>
 		</Card>
 	);
 }
