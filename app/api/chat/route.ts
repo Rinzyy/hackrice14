@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 	}
 	const result = await streamText({
 		model: openai('gpt-4-turbo'),
-		system: `You will a helpful doctor. You will provide information based on user health Info.`,
+		system: `I want you to act as a helpful doctor. Based on user health info, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
 		tools: {
 			updateAppointment: updateTool,
 		},
