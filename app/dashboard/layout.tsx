@@ -35,9 +35,9 @@ export default async function DashboardLayout({
 						</li>
 						<li>
 							<Link
-								href="/dashboard/upload"
+								href="/dashboard/setting"
 								className="hover:underline">
-								Upload
+								Setting
 							</Link>
 						</li>
 					</ul>

@@ -29,7 +29,7 @@ export default function ChatComponent() {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
-			handleSubmit((e as unknown) as React.FormEvent<HTMLFormElement>);
+			handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
 		}
 	};
 
@@ -41,20 +41,20 @@ export default function ChatComponent() {
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="flex-grow flex flex-col space-y-4 overflow-hidden">
-				<ScrollArea className="flex-grow pr-4" ref={chatContainerRef}>
+				<ScrollArea
+					className="flex-grow pr-4"
+					ref={chatContainerRef}>
 					{messages.map((m, index) => (
 						<div
 							key={m.id}
 							className={`mb-4 flex ${
 								m.role === 'user' ? 'justify-end' : 'justify-start'
 							} items-start space-x-2 fade-in`}
-							ref={index === messages.length - 1 ? lastMessageRef : null}
-						>
+							ref={index === messages.length - 1 ? lastMessageRef : null}>
 							<div
 								className={`rounded-full p-2 ${
 									m.role === 'user' ? 'bg-primary' : 'bg-secondary'
-								}`}
-							>
+								}`}>
 								<FontAwesomeIcon
 									icon={m.role === 'user' ? faUser : faUserMd}
 									className={`w-4 h-4 ${
@@ -70,8 +70,7 @@ export default function ChatComponent() {
 										? 'bg-primary text-primary-foreground'
 										: 'bg-secondary text-secondary-foreground'
 								}`}
-								style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
-							>
+								style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
 								<MemoizedReactMarkdown
 									remarkPlugins={[remarkGfm]}
 									components={{
@@ -119,8 +118,7 @@ export default function ChatComponent() {
 										td: ({ children }) => (
 											<td className="px-4 py-2">{children}</td>
 										),
-									}}
-								>
+									}}>
 									{m.content}
 								</MemoizedReactMarkdown>
 							</div>
@@ -129,8 +127,7 @@ export default function ChatComponent() {
 				</ScrollArea>
 				<form
 					onSubmit={handleSubmit}
-					className="flex items-end space-x-2 pt-2 border-t"
-				>
+					className="flex items-center space-x-2 pt-2 border-t">
 					<Textarea
 						value={input}
 						onChange={handleInputChange}
@@ -143,13 +140,17 @@ export default function ChatComponent() {
 						type="submit"
 						size="icon"
 						className="h-10 w-10 shrink-0"
-						aria-label="Send message"
-					>
-						<FontAwesomeIcon icon={faPaperPlane} className="h-4 w-4" />
+						aria-label="Send message">
+						<FontAwesomeIcon
+							icon={faPaperPlane}
+							className="h-4 w-4"
+						/>
 					</Button>
 				</form>
 			</CardContent>
-			<style jsx global>{`
+			<style
+				jsx
+				global>{`
 				.fade-in {
 					animation: fadeIn 0.5s ease-in-out;
 				}

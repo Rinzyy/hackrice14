@@ -216,7 +216,7 @@ export default function MultiFileUpload() {
 		<Card className="w-full max-w-lg mx-auto mt-8 shadow-lg">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-2xl font-bold text-center">
-					Multi-File Upload
+					Documentation
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">
@@ -224,7 +224,7 @@ export default function MultiFileUpload() {
 					<Label
 						htmlFor="file-upload"
 						className="text-sm font-medium">
-						Select files (PDF or Image)
+						Select files
 					</Label>
 					<div className="flex items-center space-x-4">
 						<Input
