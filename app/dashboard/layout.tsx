@@ -25,7 +25,7 @@ export default async function DashboardLayout({
 					<Link
 						href="/dashboard"
 						className="text-xl font-bold">
-						Dashboard
+						John Hospital
 					</Link>
 					<ul className="flex items-center justify-center space-x-4">
 						<li>
