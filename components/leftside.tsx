@@ -6,7 +6,7 @@ import BasicDateCalendar from './ui/calendar';
 export default async function Leftside() {
 	const appData = await fetchLatestApp();
 	return (
-		<aside className="bg-white p-6 rounded-lg border-2 h-auto shadow-md max-w-sm ml-16">
+		<aside className="bg-white p-6  rounded-lg border-2 h-auto shadow-md  md:max-w-sm md:ml-16">
 			<section className="mb-6">
 				<h2 className="text-xl font-bold mb-2 text-primary">
 					Chat Information
