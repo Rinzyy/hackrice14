@@ -1,4 +1,4 @@
-import HealthInfoCard from '@/components/healthinfo';
+
 import supabase from '@/lib/supabase';
 import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages, embed } from 'ai';

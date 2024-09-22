@@ -20,8 +20,6 @@ export const description =
 	"A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
 
 export default function Page() {
-	const [firstName, setFirstName] = useState('');
-	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
@@ -29,7 +27,6 @@ export default function Page() {
 
 	const handleSignup = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const name = `${firstName} ${lastName}`.trim();
 		try {
 			const { data, error } = await supabase.auth.signUp({
 				email,
@@ -38,8 +35,8 @@ export default function Page() {
 			if (error) throw error;
 			if (data?.user) {
 				const { error: profileError } = await supabase
-					.from('patient')
-					.insert({ id: data.user.id, name: name });
+					.from('users')
+					.insert({ id: data.user.id, email: email, password:password});
 
 				if (profileError) throw profileError;
 
