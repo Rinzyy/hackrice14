@@ -1,7 +1,5 @@
 import { createClient } from '@/lib/supabase/supaserver';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
 import Logout from '@/components/logout';
 import { fetchUser } from '@/lib/supabaseFunc';
 

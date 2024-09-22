@@ -1,9 +1,6 @@
-import HealthInfoCard from '@/components/healthinfo';
 import supabase from '@/lib/supabase';
 import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages, embed, tool } from 'ai';
-import { revalidatePath } from 'next/cache';
-import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 
 const updateTool = tool({
