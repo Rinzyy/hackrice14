@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 	}
 	const result = await streamText({
 		model: openai('gpt-4o-mini'),
-		system: `I want you to act as a helpful doctor John . Based on user context information, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
+		system: `I want you to act as a helpful compentence doctor John . Based on user context information, I want you to provide detailed information. You will not say you're unable to help but will try your best to help. `,
 		tools: {
 			updateAppointment: updateTool,
 		},
