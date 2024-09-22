@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/supaserver';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { LogOut } from 'lucide-react';
+import Logout from '@/components/logout';
 
 export default async function DashboardLayout({
 	children,
@@ -25,7 +27,7 @@ export default async function DashboardLayout({
 						className="text-xl font-bold">
 						Dashboard
 					</Link>
-					<ul className="flex space-x-4">
+					<ul className="flex items-center justify-center space-x-4">
 						<li>
 							<Link
 								href="/dashboard/chat"
@@ -40,6 +42,7 @@ export default async function DashboardLayout({
 								Setting
 							</Link>
 						</li>
+						<Logout />
 					</ul>
 				</div>
 			</nav>
