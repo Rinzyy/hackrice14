@@ -21,10 +21,10 @@ export default async function Leftside() {
 				</p>
 			</section>
 			<AppAvailable appData={appData} />
-			<section className="mt-6">
+			{/* <section className="mt-6">
 				<h2 className="text-xl font-bold mb-2 text-primary">Calendar</h2>
 				<BasicDateCalendar />
-			</section>
+			</section> */}
 		</aside>
 	);
 }

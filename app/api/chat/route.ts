@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 	if (data.length > 0) {
 		modifiedMessages[lastMessageIndex] = {
 			...modifiedMessages[lastMessageIndex],
-			content: `${modifiedMessages[lastMessageIndex].content}\n\nAdditional context: ${data[0].content}`,
+			content: `${modifiedMessages[lastMessageIndex].content}\n\n Additional context: ${data[0].content}`,
 		};
 	}
 
@@ -58,8 +58,8 @@ export async function POST(req: Request) {
 		throw error;
 	}
 	const result = await streamText({
-		model: openai('gpt-4-turbo'),
-		system: `I want you to act as a helpful doctor. Based on user health info, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
+		model: openai('gpt-4o-mini'),
+		system: `I want you to act as a helpful doctor. Based on user context information, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
 		tools: {
 			updateAppointment: updateTool,
 		},
