@@ -39,7 +39,7 @@ export default function ChatComponent() {
 	};
 
 	return (
-		<Card className="w-full max-w-4xl mx-auto h-[80%] flex flex-col">
+		<Card className="w-full max-w-4xl mx-auto h-full  flex flex-col">
 			<CardHeader className="pb-2">
 				<CardTitle className="text-2xl text-slate-600 font-bold text-center">
 					AI Chat Interface

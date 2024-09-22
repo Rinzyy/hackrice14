@@ -15,18 +15,28 @@ export default async function DashboardLayout({
 		data: { session },
 	} = await supabase.auth.getSession();
 	const { data, error } = await supabase.auth.getUser();
-	const userData = await fetchUser(data.user?.email!);
+
+	// Safely handle the user email
+	const userEmail = data?.user?.email;
+	let userData = null;
+
+	if (userEmail) {
+		userData = await fetchUser(userEmail);
+	}
+
 	let isDoctor = false;
-	console.log(userData);
+
 	if (userData) {
 		isDoctor = userData.isDoctor;
 	}
+
+	// Redirect in case of error or missing user data
 	// if (error || !data?.user) {
-	// 	redirect('/login');
+	//     redirect('/login');
 	// }
 
 	return (
-		<div className="flex flex-col  ">
+		<div className="flex flex-col">
 			<nav className="bg-white border-b-2 p-4">
 				<div className="container mx-auto flex justify-between items-center">
 					<Link
