@@ -57,6 +57,7 @@ This project is built using modern, scalable technologies to ensure performance,
 - **AI:** GPT-4o-mini for conversational AI and NLP tasks
 - **Document Parsing:** Langchainn PDF parsing and extraction
 - **Styling:** Tailwind CSS
+- **Vector Database:** Pinecone or FAISS for vector-based search and retrieval of medical documents
 - **Deployment:** Vercel
 
 ---
