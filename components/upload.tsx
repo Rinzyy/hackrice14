@@ -12,7 +12,6 @@ import {
 	FileText,
 	Image as ImageIcon,
 	Loader2,
-	Trash,
 	Upload,
 	X,
 } from 'lucide-react';
@@ -25,17 +24,13 @@ interface UploadedFile {
 	ContentType?: string;
 }
 
-function getFileNameFromPath(path: string): string {
-	return path.substring(path.lastIndexOf('/') + 1);
-}
-
 export default function MultiFileUpload() {
 	const [files, setFiles] = useState<File[]>([]);
 	const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 	const [isUploading, setIsUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [progress, setProgress] = useState(0);
-	const [successMessage, setSuccessMessage] = useState(false);
+	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,11 +53,13 @@ export default function MultiFileUpload() {
 				}
 
 				if (data) {
-					const mappedFiles: UploadedFile[] = data.map((file: any) => ({
-						id: file.id,
-						url: file.filelink,
-						pathname: file.name,
-					}));
+					const mappedFiles: UploadedFile[] = data.map(
+						(file: { id: string; filelink: string; name: string }) => ({
+							id: file.id,
+							url: file.filelink,
+							pathname: file.name,
+						})
+					);
 					setUploadedFiles(mappedFiles);
 				}
 			} catch (err) {
@@ -83,16 +80,15 @@ export default function MultiFileUpload() {
 	const removeSelectedFile = (index: number) => {
 		setFiles(prevFiles => {
 			const updatedFiles = prevFiles.filter((_, i) => i !== index);
-
 			if (fileInputRef.current) {
 				if (updatedFiles.length === 0) {
+					// Reset the file input when no files are left
 					fileInputRef.current.value = '';
 				} else {
-					// Reset to the latest file(s)
+					// Update the file input to reflect the remaining files
 					fileInputRef.current.files = createFileList(updatedFiles);
 				}
 			}
-
 			return updatedFiles;
 		});
 	};
@@ -137,11 +133,13 @@ export default function MultiFileUpload() {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
 				try {
-					const { data: existingFiles, error: listError } =
-						await supabase.storage.from('pdf').list('uploads', {
-							limit: 100,
-							search: file.name,
-						});
+					const {
+						data: existingFiles,
+						error: listError,
+					} = await supabase.storage.from('pdf').list('uploads', {
+						limit: 100,
+						search: file.name,
+					});
 
 					if (listError) throw listError;
 
@@ -198,18 +196,18 @@ export default function MultiFileUpload() {
 				setProgress(((i + 1) / files.length) * 100);
 			}
 
-			setUploadedFiles((prevFiles: UploadedFile[]) => [
-				...prevFiles,
-				...newUploadedFiles,
-			]);
+			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
 			setFiles([]);
+			if (fileInputRef.current) {
+				fileInputRef.current.value = '';
+			}
 		} catch (err) {
 			setError('An error occurred while uploading files. Please try again.');
 			console.error(err);
 		} finally {
 			setIsUploading(false);
 			setProgress(0);
-			setSuccessMessage(true);
+			setSuccessMessage('Files uploaded successfully.');
 		}
 	};
 
@@ -232,6 +230,7 @@ export default function MultiFileUpload() {
 							onChange={handleFileChange}
 							accept=".pdf,image/*"
 							multiple
+							ref={fileInputRef}
 							className="cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-all duration-300"
 						/>
 					</div>
@@ -252,7 +251,9 @@ export default function MultiFileUpload() {
 										<Button
 											variant="ghost"
 											size="icon"
-											onClick={() => removeSelectedFile(index)} //removeselected file
+
+											onClick={() => removeSelectedFile(index)}
+
 											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
 										>
 											<X className="h-4 w-4" />
@@ -292,7 +293,7 @@ export default function MultiFileUpload() {
 				{successMessage && (
 					<div className="flex items-center p-3 text-sm text-green-600 bg-green-100 rounded-lg">
 						<CheckCircle className="mr-2 h-4 w-4 flex-shrink-0" />
-						<p>Successfully Upload Files</p>
+						<p>{successMessage}</p>
 					</div>
 				)}
 				{uploadedFiles.length > 0 && (
