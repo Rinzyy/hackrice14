@@ -66,6 +66,7 @@ export async function POST(req: Request) {
 		tools: {
 			updateAppointment: updateTool,
 		},
+		maxSteps: 5, // allow up to 5 steps
 		messages: convertToCoreMessages(modifiedMessages),
 	});
 
