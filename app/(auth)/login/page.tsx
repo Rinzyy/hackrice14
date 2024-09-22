@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import supabase from '../../../lib/supabase';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -20,7 +19,7 @@ import { supabaseLogIn } from '@/lib/supabase/supabase-server-func';
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [error, setError] = useState(null);
+	const [error] = useState(null);
 	const router = useRouter();
 
 	const handleLogin = async (e: React.FormEvent) => {
@@ -41,9 +40,7 @@ export default function LoginPage() {
 				</CardHeader>
 				<CardContent>
 					{error && <p className="text-red-500">{error}</p>}
-					<form
-						onSubmit={handleLogin}
-						className="space-y-4">
+					<form onSubmit={handleLogin} className="space-y-4">
 						<div>
 							<Label htmlFor="email">Email</Label>
 							<Input
@@ -66,9 +63,7 @@ export default function LoginPage() {
 								required
 							/>
 						</div>
-						<Button
-							type="submit"
-							className="w-full">
+						<Button type="submit" className="w-full">
 							Login
 						</Button>
 					</form>
@@ -81,10 +76,18 @@ export default function LoginPage() {
 					</div> */}
 					<div className="text-center text-sm mt-2">
 						Don&apos;t have an account?{' '}
-						<Link
-							href="/signup"
-							className="text-primary hover:underline">
+						<Link href="/signup" className="text-primary hover:underline">
 							Sign up
+						</Link>
+					</div>
+
+					<div className="text-center text-sm mt-2">
+						Forgot your password?{' '}
+						<Link
+							href="/forgot-password"
+							className="text-primary hover:underline"
+						>
+							Reset here
 						</Link>
 					</div>
 				</CardContent>

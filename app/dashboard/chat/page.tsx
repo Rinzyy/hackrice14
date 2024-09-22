@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function Page() {
 	return (
-		<div className=" flex flex-row gap-5 ">
+		<div className=" flex flex-row gap-3 ">
 			<Leftside />
 			<ChatCompo />
 		</div>

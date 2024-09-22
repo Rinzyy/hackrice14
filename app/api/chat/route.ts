@@ -1,9 +1,6 @@
-import HealthInfoCard from '@/components/healthinfo';
 import supabase from '@/lib/supabase';
 import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages, embed, tool } from 'ai';
-import { revalidatePath } from 'next/cache';
-import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 
 const updateTool = tool({
@@ -62,7 +59,7 @@ export async function POST(req: Request) {
 	}
 	const result = await streamText({
 		model: openai('gpt-4-turbo'),
-		system: `You will a helpful doctor. You will provide information based on user health Info.`,
+		system: `I want you to act as a helpful doctor. Based on user health info, I want you to provide detailed information on symptoms, treatment options, and preventive measures.`,
 		tools: {
 			updateAppointment: updateTool,
 		},
