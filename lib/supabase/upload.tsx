@@ -15,7 +15,8 @@ import {
 	Upload,
 	CheckCircle,
 } from 'lucide-react';
-import supabase from '../lib/supabase';
+import supabase from '../supabase';
+
 interface UploadedFile {
 	url: string;
 	pathname: string;
@@ -68,13 +69,11 @@ export default function MultiFileUpload() {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
 				try {
-					const {
-						data: existingFiles,
-						error: listError,
-					} = await supabase.storage.from('pdf').list('uploads', {
-						limit: 100,
-						search: file.name,
-					});
+					const { data: existingFiles, error: listError } =
+						await supabase.storage.from('pdf').list('uploads', {
+							limit: 100,
+							search: file.name,
+						});
 
 					if (listError) throw listError;
 
@@ -150,7 +149,9 @@ export default function MultiFileUpload() {
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<div className="space-y-2">
-					<Label htmlFor="file-upload" className="text-sm font-medium">
+					<Label
+						htmlFor="file-upload"
+						className="text-sm font-medium">
 						Select files (PDF or Image)
 					</Label>
 					<div className="flex items-center space-x-4">
@@ -173,8 +174,7 @@ export default function MultiFileUpload() {
 								{files.map((file, index) => (
 									<li
 										key={index}
-										className="flex items-center justify-between bg-secondary rounded-lg p-2 transition-all duration-300 hover:bg-secondary/80"
-									>
+										className="flex items-center justify-between bg-secondary rounded-lg p-2 transition-all duration-300 hover:bg-secondary/80">
 										<span className="text-sm truncate max-w-[200px]">
 											{file.name}
 										</span>
@@ -182,8 +182,7 @@ export default function MultiFileUpload() {
 											variant="ghost"
 											size="icon"
 											onClick={() => removeFile(index)}
-											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
-										>
+											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20">
 											<X className="h-4 w-4" />
 											<span className="sr-only">Remove {file.name}</span>
 										</Button>
@@ -197,8 +196,7 @@ export default function MultiFileUpload() {
 					<Button
 						onClick={uploadFiles}
 						disabled={files.length === 0 || isUploading}
-						className="w-full py-2 transition-all duration-300"
-					>
+						className="w-full py-2 transition-all duration-300">
 						{isUploading ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -232,8 +230,7 @@ export default function MultiFileUpload() {
 								{uploadedFiles.map((file, index) => (
 									<li
 										key={index}
-										className="flex items-center space-x-2 bg-secondary rounded-lg p-2"
-									>
+										className="flex items-center space-x-2 bg-secondary rounded-lg p-2">
 										{file.ContentType?.includes('image') ? (
 											<ImageIcon className="h-4 w-4 text-primary" />
 										) : (

@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -214,7 +215,7 @@ export default function MultiFileUpload() {
 		<Card className="w-full max-w-lg mx-auto mt-8 shadow-lg">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-2xl font-bold text-center">
-					Multi-File Upload
+					Documentation
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">
@@ -250,7 +251,9 @@ export default function MultiFileUpload() {
 										<Button
 											variant="ghost"
 											size="icon"
+
 											onClick={() => removeSelectedFile(index)}
+
 											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
 										>
 											<X className="h-4 w-4" />
