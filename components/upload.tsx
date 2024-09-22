@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { put } from '@vercel/blob';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +14,7 @@ import {
 	X,
 	Upload,
 } from 'lucide-react';
-
+import supabase from '../lib/supabase';
 interface UploadedFile {
 	url: string;
 	pathname: string;
@@ -31,10 +30,9 @@ export default function MultiFileUpload() {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
-			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
+			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files)]);
 		}
 	};
-
 	const createFileList = (files: File[]): FileList => {
 		const dataTransfer = new DataTransfer();
 		files.forEach(file => dataTransfer.items.add(file));
@@ -67,14 +65,50 @@ export default function MultiFileUpload() {
 		try {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
-				const blob = await put(file.name, file, {
-					access: 'public',
-				});
-				newUploadedFiles.push(blob as UploadedFile);
+				try {
+					const {
+						data: existingFiles,
+						error: listError,
+					} = await supabase.storage.from('pdf').list('uploads', {
+						limit: 100,
+						search: file.name,
+					});
+
+					if (listError) throw listError;
+
+					const fileExists = existingFiles?.some(
+						existingFile => existingFile.name === file.name
+					);
+
+					if (fileExists) {
+						console.log(`File ${file.name} already exists. Skipping upload.`);
+						continue;
+					}
+
+					const { data, error } = await supabase.storage
+						.from('pdf')
+						.upload(`uploads/${file.name}`, file, { upsert: true });
+
+					if (error) throw error;
+
+					if (data) {
+						newUploadedFiles.push({
+							url: data.path,
+							pathname: data.path,
+							ContentType: file.type,
+						});
+					}
+				} catch (err) {
+					console.error(`Error uploading ${file.name}:`, err);
+				}
+
 				setProgress(((i + 1) / files.length) * 100);
 			}
 
 			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
+			if (fileInputRef.current) {
+				fileInputRef.current.value = '';
+			}
 			setFiles([]);
 		} catch (err) {
 			setError('An error occurred while uploading files. Please try again.');
