@@ -87,6 +87,15 @@ export default function LoginPage() {
 							Sign up
 						</Link>
 					</div>
+
+					<div className="text-center text-sm mt-2">
+						Forgot your password?{' '}
+						<Link
+							href="/forgot-password"
+							className="text-primary hover:underline">
+							Reset here
+						</Link>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
