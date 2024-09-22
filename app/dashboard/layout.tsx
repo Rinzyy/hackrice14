@@ -16,7 +16,11 @@ export default async function DashboardLayout({
 	} = await supabase.auth.getSession();
 	const { data, error } = await supabase.auth.getUser();
 	const userData = await fetchUser(data.user?.email!);
+	let isDoctor = false;
 	console.log(userData);
+	if (userData) {
+		isDoctor = userData.isDoctor;
+	}
 	// if (error || !data?.user) {
 	// 	redirect('/login');
 	// }
@@ -38,7 +42,7 @@ export default async function DashboardLayout({
 								Chat
 							</Link>
 						</li>
-						{userData.isDoctor && (
+						{isDoctor && (
 							<li>
 								<Link
 									href="/dashboard/setting"
