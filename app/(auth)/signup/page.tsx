@@ -16,9 +16,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export const description =
-	"A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
-
 export default function Page() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -28,22 +25,14 @@ export default function Page() {
 	const handleSignup = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			const { data, error } = await supabase.auth.signUp({
+			await supabase.auth.signUp({
 				email,
 				password,
 			});
+			const { error } = await supabase.from('users').insert({ email: email });
+			console.log(error);
+			router.push('/login');
 			if (error) throw error;
-			if (data?.user) {
-				const { error: profileError } = await supabase
-					.from('users')
-					.insert({ id: data.user.id, email: email, password:password});
-
-				if (profileError) throw profileError;
-
-				router.push('/login');
-			} else {
-				setError('An error occured during signup');
-			}
 		} catch (error) {
 			if (error instanceof Error) {
 				setError(error.message);
@@ -89,16 +78,12 @@ export default function Page() {
 										required
 									/>
 								</div>
-								<Button
-									type="submit"
-									className="w-full">
+								<Button type="submit" className="w-full">
 									Create an account
 								</Button>
 								<div className="mt-4 text-center text-sm text-gray-600">
 									Already have an account?{' '}
-									<Link
-										href="/login"
-										className="text-primary hover:underline">
+									<Link href="/login" className="text-primary hover:underline">
 										Log in
 									</Link>
 								</div>

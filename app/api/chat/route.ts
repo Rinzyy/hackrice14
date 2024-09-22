@@ -3,6 +3,7 @@ import supabase from '@/lib/supabase';
 import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages, embed, tool } from 'ai';
 import { revalidatePath } from 'next/cache';
+import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 
 const updateTool = tool({
@@ -21,7 +22,6 @@ const updateTool = tool({
 			return { success: false, error: error.message };
 		} else {
 			console.log('Updated appointment');
-			revalidatePath('/dashboard/chat');
 			return { success: true };
 		}
 	},
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 		tools: {
 			updateAppointment: updateTool,
 		},
-		maxSteps: 5, // allow up to 5 steps
+		maxSteps: 2,
 		messages: convertToCoreMessages(modifiedMessages),
 	});
 
