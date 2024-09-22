@@ -14,6 +14,7 @@ import {
 	Loader2,
 	X,
 	Upload,
+	CheckCircle,
 } from 'lucide-react';
 import supabase from '../lib/supabase';
 
@@ -32,7 +33,7 @@ export default function MultiFileUpload() {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
-			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files)]);
+			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
 		}
 	};
 	const createFileList = (files: File[]): FileList => {
@@ -57,12 +58,13 @@ export default function MultiFileUpload() {
 			return updatedFiles;
 		});
 	};
-
+	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const uploadFiles = async () => {
 		setIsUploading(true);
 		setError(null);
 		setProgress(0);
 		const newUploadedFiles: UploadedFile[] = [];
+		const failedUploads: File[] = [];
 
 		try {
 			for (let i = 0; i < files.length; i++) {
@@ -84,6 +86,7 @@ export default function MultiFileUpload() {
 
 					if (fileExists) {
 						console.log(`File ${file.name} already exists. Skipping upload.`);
+						failedUploads.push(file);
 						continue;
 					}
 
@@ -102,16 +105,35 @@ export default function MultiFileUpload() {
 					}
 				} catch (err) {
 					console.error(`Error uploading ${file.name}:`, err);
+					failedUploads.push(file);
 				}
 
 				setProgress(((i + 1) / files.length) * 100);
 			}
 
 			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
-			if (fileInputRef.current) {
-				fileInputRef.current.value = '';
+
+			// Set success message
+			if (newUploadedFiles.length > 0) {
+				setSuccessMessage(
+					`Successfully uploaded ${newUploadedFiles.length} file(s)`
+				);
+				// Clear success message after 3 seconds
+				setTimeout(() => setSuccessMessage(null), 5000);
 			}
-			setFiles([]);
+
+			// Update files state to keep only the failed uploads
+			setFiles(failedUploads);
+
+			if (fileInputRef.current) {
+				// Reset the file input only if all files were successfully uploaded
+				if (failedUploads.length === 0) {
+					fileInputRef.current.value = '';
+				} else {
+					// Update the file input to reflect the remaining files
+					fileInputRef.current.files = createFileList(failedUploads);
+				}
+			}
 		} catch (err) {
 			setError('An error occurred while uploading files. Please try again.');
 			console.error(err);
@@ -196,6 +218,12 @@ export default function MultiFileUpload() {
 					<div className="flex items-center p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
 						<AlertCircle className="mr-2 h-4 w-4 flex-shrink-0" />
 						<p>{error}</p>
+					</div>
+				)}
+				{successMessage && (
+					<div className="flex items-center p-3 text-sm text-green-600 bg-green-100 rounded-lg">
+						<CheckCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+						<p>{successMessage}</p>
 					</div>
 				)}
 				{uploadedFiles.length > 0 && (
