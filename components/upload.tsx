@@ -217,7 +217,7 @@ export default function MultiFileUpload() {
 		<Card className="w-full max-w-lg mx-auto mt-8 shadow-lg">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-2xl font-bold text-center">
-					Multi-File Upload
+					Documentation
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">

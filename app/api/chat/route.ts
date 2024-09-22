@@ -1,7 +1,31 @@
-
+import HealthInfoCard from '@/components/healthinfo';
 import supabase from '@/lib/supabase';
 import { openai } from '@ai-sdk/openai';
-import { streamText, convertToCoreMessages, embed } from 'ai';
+import { streamText, convertToCoreMessages, embed, tool } from 'ai';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+
+const updateTool = tool({
+	description: 'Create an appointment if user requested',
+	parameters: z.object({
+		date: z.string().describe('The date of the appointment to update'),
+		reason: z.string().describe('The reason for updating the appointment'),
+	}),
+	execute: async ({ date, reason }) => {
+		const { error } = await supabase
+			.from('appointments')
+			.insert({ date, description: reason, user_id: 2 });
+
+		if (error) {
+			console.error('Error updating appointment:', error);
+			return { success: false, error: error.message };
+		} else {
+			console.log('Updated appointment');
+			revalidatePath('/dashboard/chat');
+			return { success: true };
+		}
+	},
+});
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -39,6 +63,9 @@ export async function POST(req: Request) {
 	const result = await streamText({
 		model: openai('gpt-4-turbo'),
 		system: `You will a helpful doctor. You will provide information based on user health Info.`,
+		tools: {
+			updateAppointment: updateTool,
+		},
 		messages: convertToCoreMessages(modifiedMessages),
 	});
 
