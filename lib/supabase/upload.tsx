@@ -1,32 +1,25 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import supabase from '@/lib/supabase';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
 	AlertCircle,
-	CheckCircle,
 	FileText,
 	Image as ImageIcon,
 	Loader2,
-	Trash,
-	Upload,
 	X,
+	Upload,
+	CheckCircle,
 } from 'lucide-react';
-import { ScrollArea } from './ui/scroll-area';
-
+import supabase from '../lib/supabase';
 interface UploadedFile {
-	id: string;
 	url: string;
 	pathname: string;
 	ContentType?: string;
-}
-
-function getFileNameFromPath(path: string): string {
-	return path.substring(path.lastIndexOf('/') + 1);
 }
 
 export default function MultiFileUpload() {
@@ -35,52 +28,19 @@ export default function MultiFileUpload() {
 	const [isUploading, setIsUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [progress, setProgress] = useState(0);
-	const [successMessage, setSuccessMessage] = useState(false);
-
 	const fileInputRef = useRef<HTMLInputElement>(null);
-
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files) {
+			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
+		}
+	};
 	const createFileList = (files: File[]): FileList => {
 		const dataTransfer = new DataTransfer();
 		files.forEach(file => dataTransfer.items.add(file));
 		return dataTransfer.files;
 	};
 
-	useEffect(() => {
-		const fetchUploadedFiles = async () => {
-			try {
-				const { data, error } = await supabase
-					.from('filelink')
-					.select('*')
-					.order('created_at', { ascending: false });
-
-				if (error) {
-					throw error;
-				}
-
-				if (data) {
-					const mappedFiles: UploadedFile[] = data.map((file: any) => ({
-						id: file.id,
-						url: file.filelink,
-						pathname: file.name,
-					}));
-					setUploadedFiles(mappedFiles);
-				}
-			} catch (err) {
-				console.error('Error fetching uploaded files:', err);
-				setError('Failed to load uploaded files.');
-			}
-		};
-
-		fetchUploadedFiles();
-	}, []);
-
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files!)]);
-		}
-	};
-
-	const removeSelectedFile = (index: number) => {
+	const removeFile = (index: number) => {
 		setFiles(prevFiles => {
 			const updatedFiles = prevFiles.filter((_, i) => i !== index);
 
@@ -96,52 +56,25 @@ export default function MultiFileUpload() {
 			return updatedFiles;
 		});
 	};
-	const removeFile = async (index: number) => {
-		const fileToRemove = uploadedFiles[index];
-		if (!fileToRemove) return;
-
-		try {
-			const { error: storageError } = await supabase.storage
-				.from('pdf')
-				.remove([fileToRemove.pathname]);
-
-			if (storageError) {
-				throw storageError;
-			}
-
-			const { error: dbError } = await supabase
-				.from('filelink')
-				.delete()
-				.eq('id', fileToRemove.id);
-
-			if (dbError) {
-				throw dbError;
-			}
-
-			setUploadedFiles((prevFiles: UploadedFile[]) =>
-				prevFiles.filter((_, i) => i !== index)
-			);
-		} catch (err) {
-			console.error(`Error removing file ${fileToRemove.pathname}:`, err);
-			setError('Failed to remove the file.');
-		}
-	};
-
+	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const uploadFiles = async () => {
 		setIsUploading(true);
 		setError(null);
 		setProgress(0);
 		const newUploadedFiles: UploadedFile[] = [];
+		const failedUploads: File[] = [];
 
 		try {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
 				try {
-					const { data: existingFiles, error: listError } =
-						await supabase.storage.from('pdf').list('uploads', {
-							limit: 100,
-							search: file.name,
-						});
+					const {
+						data: existingFiles,
+						error: listError,
+					} = await supabase.storage.from('pdf').list('uploads', {
+						limit: 100,
+						search: file.name,
+					});
 
 					if (listError) throw listError;
 
@@ -151,6 +84,7 @@ export default function MultiFileUpload() {
 
 					if (fileExists) {
 						console.log(`File ${file.name} already exists. Skipping upload.`);
+						failedUploads.push(file);
 						continue;
 					}
 
@@ -161,55 +95,49 @@ export default function MultiFileUpload() {
 					if (error) throw error;
 
 					if (data) {
-						const {
-							data: { publicUrl },
-						} = supabase.storage.from('pdf').getPublicUrl(data.path);
-
-						const { error: insertError } = await supabase
-							.from('filelink')
-							.insert([
-								{
-									filelink: publicUrl,
-									name: data.path,
-								},
-							])
-							.single();
-
-						if (insertError) throw insertError;
-						if (publicUrl) {
-							const filename = data.path;
-
-							const res = await fetch('/api/convertpdf', {
-								method: 'POST',
-								headers: {
-									'Content-Type': 'application/json',
-								},
-								body: JSON.stringify({ filename }),
-							});
-
-							await res.json();
-						}
+						newUploadedFiles.push({
+							url: data.path,
+							pathname: data.path,
+							ContentType: file.type,
+						});
 					}
 				} catch (err) {
 					console.error(`Error uploading ${file.name}:`, err);
-					setError(`Failed to upload ${file.name}.`);
+					failedUploads.push(file);
 				}
 
 				setProgress(((i + 1) / files.length) * 100);
 			}
 
-			setUploadedFiles((prevFiles: UploadedFile[]) => [
-				...prevFiles,
-				...newUploadedFiles,
-			]);
-			setFiles([]);
+			setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
+
+			// Set success message
+			if (newUploadedFiles.length > 0) {
+				setSuccessMessage(
+					`Successfully uploaded ${newUploadedFiles.length} file(s)`
+				);
+				// Clear success message after 3 seconds
+				setTimeout(() => setSuccessMessage(null), 5000);
+			}
+
+			// Update files state to keep only the failed uploads
+			setFiles(failedUploads);
+
+			if (fileInputRef.current) {
+				// Reset the file input only if all files were successfully uploaded
+				if (failedUploads.length === 0) {
+					fileInputRef.current.value = '';
+				} else {
+					// Update the file input to reflect the remaining files
+					fileInputRef.current.files = createFileList(failedUploads);
+				}
+			}
 		} catch (err) {
 			setError('An error occurred while uploading files. Please try again.');
 			console.error(err);
 		} finally {
 			setIsUploading(false);
 			setProgress(0);
-			setSuccessMessage(true);
 		}
 	};
 
@@ -232,6 +160,7 @@ export default function MultiFileUpload() {
 							onChange={handleFileChange}
 							accept=".pdf,image/*"
 							multiple
+							ref={fileInputRef}
 							className="cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-all duration-300"
 						/>
 					</div>
@@ -252,7 +181,7 @@ export default function MultiFileUpload() {
 										<Button
 											variant="ghost"
 											size="icon"
-											onClick={() => removeSelectedFile(index)} //removeselected file
+											onClick={() => removeFile(index)}
 											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
 										>
 											<X className="h-4 w-4" />
@@ -292,7 +221,7 @@ export default function MultiFileUpload() {
 				{successMessage && (
 					<div className="flex items-center p-3 text-sm text-green-600 bg-green-100 rounded-lg">
 						<CheckCircle className="mr-2 h-4 w-4 flex-shrink-0" />
-						<p>Successfully Upload Files</p>
+						<p>{successMessage}</p>
 					</div>
 				)}
 				{uploadedFiles.length > 0 && (
@@ -313,14 +242,6 @@ export default function MultiFileUpload() {
 										<span className="text-sm truncate max-w-[200px]">
 											{file.pathname}
 										</span>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => removeFile(index)}
-											className="h-8 w-8 rounded-full text-destructive hover:text-destructive/90 hover:bg-destructive/20"
-										>
-											<X className="h-4 w-4" />
-										</Button>
 									</li>
 								))}
 							</ul>
