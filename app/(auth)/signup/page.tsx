@@ -28,22 +28,14 @@ export default function Page() {
 	const handleSignup = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			const { data, error } = await supabase.auth.signUp({
+			await supabase.auth.signUp({
 				email,
 				password,
 			});
+			const { error } = await supabase.from('users').insert({ email: email });
+			console.log(error);
+			router.push('/login');
 			if (error) throw error;
-			if (data?.user) {
-				const { error: profileError } = await supabase
-					.from('users')
-					.insert({ id: data.user.id, email: email, password:password});
-
-				if (profileError) throw profileError;
-
-				router.push('/login');
-			} else {
-				setError('An error occured during signup');
-			}
 		} catch (error) {
 			if (error instanceof Error) {
 				setError(error.message);

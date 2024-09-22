@@ -72,13 +72,13 @@ export default function LoginPage() {
 							Login
 						</Button>
 					</form>
-					<div className="text-center text-sm mt-2">
+					{/* <div className="text-center text-sm mt-2">
 						<Link
 							href="#"
 							className="text-gray-600 hover:underline">
 							Forgot your password?
 						</Link>
-					</div>
+					</div> */}
 					<div className="text-center text-sm mt-2">
 						Don&apos;t have an account?{' '}
 						<Link

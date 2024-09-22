@@ -16,16 +16,19 @@ import {
 import remarkGfm from 'remark-gfm';
 import { MemoizedReactMarkdown } from './markdown';
 import { FileQuestion, ShieldQuestion } from 'lucide-react';
+import Router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function ChatComponent() {
 	const { messages, input, handleInputChange, handleSubmit } = useChat();
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
-
+	const router = useRouter();
 	useEffect(() => {
 		if (lastMessageRef.current) {
 			lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
 		}
+		router.refresh();
 	}, [messages]);
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -36,14 +39,16 @@ export default function ChatComponent() {
 	};
 
 	return (
-		<Card className="w-full max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
+		<Card className="w-full max-w-4xl mx-auto h-[80%] flex flex-col">
 			<CardHeader className="pb-2">
 				<CardTitle className="text-2xl text-slate-600 font-bold text-center">
 					AI Chat Interface
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="flex-grow flex flex-col space-y-4 overflow-hidden">
-				<ScrollArea className="flex-grow pr-4" ref={chatContainerRef}>
+				<ScrollArea
+					className="flex-grow pr-4"
+					ref={chatContainerRef}>
 					{messages.length === 0 ? (
 						<div className="flex flex-col justify-center items-center h-[32rem]">
 							<p className="text-muted-foreground  text-4xl font-bold">
@@ -58,13 +63,11 @@ export default function ChatComponent() {
 								className={`mb-4 flex ${
 									m.role === 'user' ? 'justify-end' : 'justify-start'
 								} items-start space-x-2 fade-in`}
-								ref={index === messages.length - 1 ? lastMessageRef : null}
-							>
+								ref={index === messages.length - 1 ? lastMessageRef : null}>
 								<div
 									className={`rounded-full p-2 ${
 										m.role === 'user' ? 'bg-primary' : 'bg-secondary'
-									}`}
-								>
+									}`}>
 									<FontAwesomeIcon
 										icon={m.role === 'user' ? faUser : faUserMd}
 										className={`w-4 h-4 ${
@@ -83,8 +86,7 @@ export default function ChatComponent() {
 									style={{
 										wordWrap: 'break-word',
 										overflowWrap: 'break-word',
-									}}
-								>
+									}}>
 									<MemoizedReactMarkdown
 										remarkPlugins={[remarkGfm]}
 										components={{
@@ -138,8 +140,7 @@ export default function ChatComponent() {
 											td: ({ children }) => (
 												<td className="px-4 py-2">{children}</td>
 											),
-										}}
-									>
+										}}>
 										{m.content}
 									</MemoizedReactMarkdown>
 								</div>
@@ -149,8 +150,7 @@ export default function ChatComponent() {
 				</ScrollArea>
 				<form
 					onSubmit={handleSubmit}
-					className="flex items-center space-x-2 pt-2 border-t"
-				>
+					className="flex items-center space-x-2 pt-2 border-t">
 					<Textarea
 						value={input}
 						onChange={handleInputChange}
@@ -163,13 +163,17 @@ export default function ChatComponent() {
 						type="submit"
 						size="icon"
 						className="h-10 w-10 shrink-0"
-						aria-label="Send message"
-					>
-						<FontAwesomeIcon icon={faPaperPlane} className="h-4 w-4" />
+						aria-label="Send message">
+						<FontAwesomeIcon
+							icon={faPaperPlane}
+							className="h-4 w-4"
+						/>
 					</Button>
 				</form>
 			</CardContent>
-			<style jsx global>{`
+			<style
+				jsx
+				global>{`
 				.fade-in {
 					animation: fadeIn 0.5s ease-in-out;
 				}

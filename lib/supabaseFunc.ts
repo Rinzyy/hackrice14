@@ -28,6 +28,22 @@ export async function fetchLatestApp() {
 	}
 }
 
+export async function fetchUser(email: string) {
+	const { data, error } = await supabase
+		.from('users')
+		.select('*')
+		.eq('email', email)
+		.single();
+
+	if (error) {
+		console.error('Error fetching latest appointment:', error);
+		return null;
+	} else {
+		console.log('Latest appointment:', data);
+		return data;
+	}
+}
+
 export async function createNewAppointment(date: string, description: string) {
 	const { error } = await supabase
 		.from('appointments')
