@@ -39,7 +39,7 @@ export async function fetchUser(email: string) {
 		console.error('Error fetching latest appointment:', error);
 		return null;
 	} else {
-		console.log('Latest appointment:', data);
+		console.log('Latest patient added:', data);
 		return data;
 	}
 }
