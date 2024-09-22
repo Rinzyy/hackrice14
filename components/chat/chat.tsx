@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +11,10 @@ import {
 	faUserMd,
 	faUser,
 	faPaperPlane,
-	faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import remarkGfm from 'remark-gfm';
 import { MemoizedReactMarkdown } from './markdown';
-import { FileQuestion, ShieldQuestion } from 'lucide-react';
-import Router from 'next/router';
+import { ShieldQuestion } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ChatComponent() {

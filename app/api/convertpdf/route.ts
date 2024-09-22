@@ -37,11 +37,6 @@ export async function POST(request: NextRequest) {
 		});
 
 		const docs = await loader.load();
-		const textSplitter = new TokenTextSplitter({
-			encodingName: 'gpt2',
-			chunkSize: 1000,
-			chunkOverlap: 0,
-		});
 
 		console.log('Loaded Documents:', docs);
 
