@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ChatComponent() {
 	const { messages, input, handleInputChange, handleSubmit } = useChat();
+
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 	const router = useRouter();
@@ -28,7 +29,6 @@ export default function ChatComponent() {
 		if (lastMessageRef.current) {
 			lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
 		}
-		router.refresh();
 	}, [messages]);
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
