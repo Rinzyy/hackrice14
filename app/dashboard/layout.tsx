@@ -23,7 +23,7 @@ export default async function DashboardLayout({
 			<nav className="border-b border-2 p-4">
 				<div className="container mx-auto flex justify-between items-center">
 					<Link
-						href="/dashboard"
+						href="/dashboard/chat"
 						className="text-xl font-bold">
 						John Hospital
 					</Link>
